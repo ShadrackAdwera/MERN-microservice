@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
         - name: auth
-          image: adwera/ticket-auth
+          image: us.gcr.io/tikceting-dev/ticket-auth

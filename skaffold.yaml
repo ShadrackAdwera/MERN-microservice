@@ -5,10 +5,12 @@ deploy:
     manifests:
       - ./k8s/*
 build:
-  local:
-    push: false
+  # local:
+  #   push: false
+  googleCloudBuild:
+    projectId: tikceting-dev
   artifacts:
-    - image: adwera/ticket-auth
+    - image: us.gcr.io/tikceting-dev/ticket-auth
       context: auth
       docker:
         dockerfile: Dockerfile
