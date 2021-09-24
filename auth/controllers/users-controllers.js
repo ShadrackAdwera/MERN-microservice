@@ -51,7 +51,7 @@ const signUp = async(req,res,next) => {
     res.status(201).json({message: 'Sign up successful', user: { id: createdUser.id, email, token }});
 }
 
-const signIn = (req,res,next) => {
+const signIn = async(req,res,next) => {
     const { email, password } = req.body;
     const error = validationResult(req);
 
@@ -84,6 +84,11 @@ const signIn = (req,res,next) => {
     res.status(201).json({message: 'Sign up successful', user: { id: foundUser.id, email, token }})
 }
 
+const signOut = (req,res,next) => {
+    res.status(201).json({message: 'Signed Out'});
+}
+
 exports.getCurrentUser = getCurrentUser;
 exports.signUp = signUp;
 exports.signIn = signIn;
+exports.signOut = signOut;
