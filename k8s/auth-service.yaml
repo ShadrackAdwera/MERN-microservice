@@ -5,6 +5,7 @@ metadata:
 spec:
   selector:
     app: auth
+  type: LoadBalancer
   ports:
     - name: auth
       protocol: TCP
