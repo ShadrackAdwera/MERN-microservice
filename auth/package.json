@@ -18,6 +18,7 @@
   "homepage": "https://github.com/ShadrackAdwera/MERN-microservice#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cookie-session": "^1.4.0",
     "express": "^4.17.1",
     "express-validator": "^6.12.1",
     "jsonwebtoken": "^8.5.1",

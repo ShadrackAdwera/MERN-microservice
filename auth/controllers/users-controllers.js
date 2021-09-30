@@ -60,6 +60,8 @@ const signUp = async(req,res,next) => {
     } catch (error) {
         return next(new HttpError('Auth failed',401));
     }
+    //store jwt in a session
+    req.session.jwt = token;
     res.status(201).json({message: 'Sign up successful', user: { id: createdUser._id.toString(), email, token }});
 }
 
@@ -98,6 +100,7 @@ const signIn = async(req,res,next) => {
     } catch (error) {
         return next(new HttpError('Auth failed', 401));
     }
+    req.session.jwt = token;
     res.status(201).json({message: 'Login successful', user: { id: foundUser._id.toString(), email, token }})
 }
 

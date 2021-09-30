@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieSession = require('cookie-session');
 
 const userRoutes = require('./routes/users-routes');
 
@@ -7,7 +8,13 @@ const HttpError = require('./models/httpError');
 
 const app = express();
 
+//should trust requests coming from ingress nginx
+app.set('trust proxy', true);
 app.use(express.json());
+app.use(cookieSession({
+    signed: false,
+    secure: true
+}));
 
 app.use('/api/users', userRoutes);
 
