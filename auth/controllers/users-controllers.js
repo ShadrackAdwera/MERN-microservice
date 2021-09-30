@@ -5,15 +5,22 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const HttpError = require('../models/httpError');
+const User = require('../models/User');
 
-const currentUser = {
-    name: 'Deez Nuts',
-    email: 'deeznuts@mail.com'
-}
-const USERS = [];
 
-const getCurrentUser = (req,res,next) => {
-    res.status(200).json({users: currentUser})
+const getCurrentUser = async(req,res,next) => {
+    const { userId } = req.params;
+    let currentUser;
+    try {
+        currentUser = await User.findById(userId,'-password').exec()
+    } catch (error) {
+        return next(new HttpError('An error ocurred, try again',500));
+    }
+    if(!currentUser) {
+        return next(new HttpError('User does not exist', 404));
+    }
+
+    res.status(200).json({user: currentUser})
 }
 
 const signUp = async(req,res,next) => {
@@ -26,7 +33,7 @@ const signUp = async(req,res,next) => {
     let hashedPassword;
     let token;
     try {
-        foundEmail = USERS.find(user=>user.email===email);
+        foundEmail = await User.findOne({email: email}).exec();
     } catch (error) {
         return next(new HttpError('Internal server error',500));
     }
@@ -40,15 +47,20 @@ const signUp = async(req,res,next) => {
         return next(new HttpError('Auth failed',401));
     }
     
-    const createdUser = {id: crypto.randomUUID().toString(), email, password: hashedPassword}
+    const createdUser = new User({ email, password: hashedPassword});
 
-    USERS.push(createdUser);
     try {
-        token = jwt.sign({id: createdUser.id, email: createdUser.email}, 'supersecretkey', { expiresIn: '1h' });
+        await createdUser.save();
+    } catch (error) {
+        return next(new HttpError('Auth failed', 500));
+    }
+
+    try {
+        token = jwt.sign({id: createdUser._id, email: createdUser.email}, 'supersecretkey', { expiresIn: '1h' });
     } catch (error) {
         return next(new HttpError('Auth failed',401));
     }
-    res.status(201).json({message: 'Sign up successful', user: { id: createdUser.id, email, token }});
+    res.status(201).json({message: 'Sign up successful', user: { id: createdUser._id, email, token }});
 }
 
 const signIn = async(req,res,next) => {
@@ -59,9 +71,14 @@ const signIn = async(req,res,next) => {
         return next(new HttpError('Invalid email or password',422));
     }
     //check if email exists in db
-    const foundUser = USERS.find(user=>user.email===email);
+    let foundUser;
     let isPassword;
     let token;
+    try {
+        foundUser = await User.findOne({email: email}).exec();
+    } catch (error) {
+        return next(new HttpError('Auth failed',500));
+    }
     if(!foundUser) {
         return next(new HttpError('Email does not exist, try signing up first', 422));
     }
@@ -73,7 +90,7 @@ const signIn = async(req,res,next) => {
         return next(new HttpError('An error occured, try again', 500));
     }
     if(!isPassword) {
-        return next(new HttpError('Auth failed', 401));
+        return next(new HttpError('Invalid password', 422));
     }
     //create auth token
     try {
@@ -81,7 +98,7 @@ const signIn = async(req,res,next) => {
     } catch (error) {
         return next(new HttpError('Auth failed', 401));
     }
-    res.status(201).json({message: 'Login successful', user: { id: foundUser.id, email, token }})
+    res.status(201).json({message: 'Login successful', user: { id: foundUser._id, email, token }})
 }
 
 const signOut = (req,res,next) => {

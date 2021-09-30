@@ -5,7 +5,7 @@ const { getCurrentUser, signUp, signIn, signOut } = require('../controllers/user
 
 const router = express.Router()
 
-router.get('/currentuser', getCurrentUser);
+router.get('/:userId', getCurrentUser);
 router.post('/login', [ body('email').normalizeEmail().isEmail(), body('password').trim().isLength({min: 6}) ] ,signIn);
 router.post('/sign-up', [ body('email').normalizeEmail().isEmail(), body('password').trim().isLength({min: 6}) ], signUp);
 router.post('/sign-out', signOut);
