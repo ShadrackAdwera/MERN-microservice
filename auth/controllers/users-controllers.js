@@ -81,7 +81,7 @@ const signIn = async(req,res,next) => {
     } catch (error) {
         return next(new HttpError('Auth failed', 401));
     }
-    res.status(201).json({message: 'Sign up successful', user: { id: foundUser.id, email, token }})
+    res.status(201).json({message: 'Login successful', user: { id: foundUser.id, email, token }})
 }
 
 const signOut = (req,res,next) => {
