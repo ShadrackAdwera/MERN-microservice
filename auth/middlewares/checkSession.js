@@ -16,7 +16,7 @@ const checkSession = (req,res,next) => {
     } catch (error) {
         return next(new HttpError('Auth failed', 401));
     }
-    req.user = { id: decodedToken.id, email: decodedToken.email };
+    req.user = { userId: decodedToken.id, email: decodedToken.email };
     next();
 
 }
