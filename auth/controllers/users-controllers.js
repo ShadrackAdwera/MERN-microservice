@@ -105,7 +105,8 @@ const signIn = async(req,res,next) => {
 }
 
 const signOut = (req,res,next) => {
-    res.status(201).json({message: 'Signed Out'});
+    req.session = null;
+    res.status(200).json({message: 'Signed Out'});
 }
 
 exports.getCurrentUser = getCurrentUser;

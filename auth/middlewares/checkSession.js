@@ -18,7 +18,6 @@ const checkSession = (req,res,next) => {
     }
     req.user = { userId: decodedToken.id, email: decodedToken.email };
     next();
-
 }
 
 module.exports = checkSession;
