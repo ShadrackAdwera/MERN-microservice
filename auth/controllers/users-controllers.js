@@ -20,7 +20,7 @@ const getCurrentUser = async(req,res,next) => {
         return next(new HttpError('User does not exist', 404));
     }
 
-    res.status(200).json({user: currentUser})
+    res.status(200).json({user: currentUser.toObject({getters: true})})
 }
 
 const signUp = async(req,res,next) => {
@@ -56,11 +56,11 @@ const signUp = async(req,res,next) => {
     }
 
     try {
-        token = jwt.sign({id: createdUser._id, email: createdUser.email}, 'supersecretkey', { expiresIn: '1h' });
+        token = jwt.sign({id: createdUser._id, email: createdUser.email}, process.env.JWT_KEY, { expiresIn: '1h' });
     } catch (error) {
         return next(new HttpError('Auth failed',401));
     }
-    //store jwt in a session
+    //store jwt in a cookie
     req.session.jwt = token;
     res.status(201).json({message: 'Sign up successful', user: { id: createdUser._id.toString(), email, token }});
 }
@@ -96,7 +96,7 @@ const signIn = async(req,res,next) => {
     }
     //create auth token
     try {
-        token = jwt.sign({id: foundUser.id, email}, 'supersecretkey', {expiresIn: '1h'})
+        token = jwt.sign({id: foundUser.id, email}, process.env.JWT_KEY, {expiresIn: '1h'})
     } catch (error) {
         return next(new HttpError('Auth failed', 401));
     }

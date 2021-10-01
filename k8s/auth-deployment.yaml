@@ -15,3 +15,9 @@ spec:
       containers:
         - name: auth
           image: us.gcr.io/tikceting-dev/ticket-auth
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY 
