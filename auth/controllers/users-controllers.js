@@ -9,7 +9,7 @@ const User = require('../models/User');
 
 
 const getCurrentUser = async(req,res,next) => {
-    const { userId } = req.params;
+    const { userId } = req.user;
     let currentUser;
     try {
         currentUser = await User.findById(userId,'-password').exec()
