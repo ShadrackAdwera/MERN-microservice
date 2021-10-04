@@ -17,3 +17,9 @@ spec:
                 name: auth-service
                 port:
                   number: 5000
+          - path: /?(.*)
+            backend:
+              service:
+                name: client
+                port:
+                  number: 3000
