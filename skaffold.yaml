@@ -18,4 +18,12 @@ build:
         manual:
           - dest: .
             src: '**/*.js'
+    - image: us.gcr.io/tikceting-dev/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: '**/*.js'
   
