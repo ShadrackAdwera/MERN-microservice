@@ -7,6 +7,13 @@ const HttpError = require('./models/httpError');
 
 const app = express();
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.setHeader('Access-Control-Allow-Methods','OPTIONS, PUT, PATCH, POST, DELETE, GET');
+    next();
+  });
+
 //should trust requests coming from ingress nginx
 app.set('trust proxy', true);
 app.use(express.json());

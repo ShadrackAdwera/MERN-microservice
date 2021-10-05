@@ -1,6 +1,7 @@
 import React, { useReducer } from "react";
 import { Button, Grid, TextField } from "@mui/material";
 
+import useHttp from "../../hooks/http-hook";
 import AuthAppBar from "../../components/AuthAppBar";
 import styles from "./sign-up.module.css";
 
@@ -24,11 +25,19 @@ const reducer = (state, action) => {
 
 const SignUp = () => {
   const [inputState, dispatch] = useReducer(reducer, initialState);
+  const { isLoading, sendRequest } = useHttp();
 
-  const submitHandler = (e) => {
+  const submitHandler = async(e) => {
     e.preventDefault();
     const { email, password } = inputState;
-    console.log({email, password});
+    try {
+        const response = await sendRequest('http://104.154.227.48:5000/api/users/sign-up', 'POST', JSON.stringify({email, password}), {
+        'Content-Type':'application/json'
+    });
+    console.log(response);
+    } catch (error) {
+        alert(error.message);
+    }
   }
 
   return (
@@ -65,7 +74,7 @@ const SignUp = () => {
             onChange={e=>dispatch({type: 'SET_PASSWORD', value: e.target.value})}
           />
           <br />
-          <Button variant="contained" type="submit">
+          <Button variant="contained" type="submit" disabled={isLoading}>
             Submit
           </Button>
         </form>
