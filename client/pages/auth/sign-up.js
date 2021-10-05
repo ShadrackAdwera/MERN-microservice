@@ -1,8 +1,11 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useState } from "react";
+import { useRouter } from 'next/router';
 import { Button, Grid, TextField } from "@mui/material";
 
 import useHttp from "../../hooks/http-hook";
 import AuthAppBar from "../../components/AuthAppBar";
+import CustomSnackbar from "../../components/Snackbar";
+
 import styles from "./sign-up.module.css";
 
 const initialState = {
@@ -25,20 +28,28 @@ const reducer = (state, action) => {
 
 const SignUp = () => {
   const [inputState, dispatch] = useReducer(reducer, initialState);
-  const { isLoading, sendRequest } = useHttp();
+  const { isLoading, sendRequest, error, clearError } = useHttp();
+  const [user, setUser] = useState();
+  const router = useRouter();
 
-  const submitHandler = async(e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
     const { email, password } = inputState;
     try {
-        const response = await sendRequest('http://104.154.227.48:5000/api/users/sign-up', 'POST', JSON.stringify({email, password}), {
-        'Content-Type':'application/json'
-    });
-    console.log(response);
-    } catch (error) {
-        alert(error.message);
-    }
-  }
+      const response = await sendRequest(
+        "http://104.154.227.48:5000/api/users/sign-up",
+        "POST",
+        JSON.stringify({ email, password }),
+        {
+          "Content-Type": "application/json",
+        }
+      );
+      setUser(response.user);
+      setTimeout(()=>{
+        router.push('/');
+      },3500);
+    } catch (error) {}
+  };
 
   return (
     <Grid container spacing={2}>
@@ -71,13 +82,29 @@ const SignUp = () => {
             required
             variant="standard"
             value={inputState.password}
-            onChange={e=>dispatch({type: 'SET_PASSWORD', value: e.target.value})}
+            onChange={(e) =>
+              dispatch({ type: "SET_PASSWORD", value: e.target.value })
+            }
           />
           <br />
           <Button variant="contained" type="submit" disabled={isLoading}>
             Submit
           </Button>
         </form>
+        <CustomSnackbar
+          message={error? error: ''}
+          severity="error"
+          open={!!error}
+          handleClose={clearError}
+          duration={5000}
+        />
+        <CustomSnackbar
+          message="Sign up successful"
+          severity="success"
+          open={!!user}
+          handleClose={()=>setUser(null)}
+          duration={3000}
+        />
       </Grid>
       <Grid item xs={12} sm={12} md={4}></Grid>
     </Grid>
