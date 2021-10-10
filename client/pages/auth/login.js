@@ -40,7 +40,7 @@ const SignUp = () => {
     const { email, password } = inputState;
     try {
       const response = await sendRequest(
-        "http://146.148.93.110:5000/api/users/sign-up",
+        "http://146.148.93.110:5000/api/users/login",
         "POST",
         JSON.stringify({ email, password }),
         {
@@ -62,7 +62,7 @@ const SignUp = () => {
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <div className={styles.heading}>
-          <h1>Sign Up</h1>
+          <h1>Login</h1>
         </div>
       </Grid>
       <Grid item xs={12} sm={12} md={4}></Grid>
@@ -95,8 +95,8 @@ const SignUp = () => {
             Submit
           </Button>
         </form>
-        <Link href="/auth/login">
-          <a>Click here to login</a>
+        <Link href="/auth/sign-up">
+          <a>Click here to sign up</a>
         </Link>
         <CustomSnackbar
           message={error? error: ''}
@@ -106,7 +106,7 @@ const SignUp = () => {
           duration={5000}
         />
         <CustomSnackbar
-          message="Sign up successful"
+          message="Login successful"
           severity="success"
           open={!!user}
           handleClose={()=>setUser(null)}
