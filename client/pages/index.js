@@ -1,12 +1,23 @@
+import { Button } from '@mui/material';
 import Head from 'next/head'
 import Image from 'next/image'
 import { useContext } from 'react';
+import { getSession, signOut } from 'next-auth/client';
+//import axios from 'axios';
 
 import AuthContext from '../store/auth-context'
 import styles from '../styles/Home.module.css'
 
 export default function Home(props) { 
-  const { token } = useContext(AuthContext);
+  const { session } = props; 
+  const { logout, login } = useContext(AuthContext);
+  const authInfo = JSON.parse(session.user.email);
+  login(authInfo);
+
+  const logoutHandler = () => {
+    logout();
+    signOut();
+  }
 
   return (
     <div className={styles.container}>
@@ -22,8 +33,10 @@ export default function Home(props) {
         </h1>
 
         <p className={styles.description}>
-          {`Your are ${token? 'Logged in': 'not logged in.'}`}
+          {`Your are ${authInfo && authInfo.token? 'Logged in': 'not logged in.'}`}
         </p>
+        <div style={{margin: '1rem 0'}}></div>
+        <Button variant="text" onClick={logoutHandler}>Logout</Button>
       </main>
 
       <footer className={styles.footer}>
@@ -40,4 +53,22 @@ export default function Home(props) {
       </footer>
     </div>
   )
+}
+
+export async function getServerSideProps(context){
+  const session = await getSession({req: context.req});
+  console.log(session);
+  if(!session) {
+    return {
+      redirect: {
+        destination: '/auth/login',
+        permanent: false
+      }
+    }
+  }
+  return {
+    props: {
+      session
+    }
+  }
 }

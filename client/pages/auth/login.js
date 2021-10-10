@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import React, { useReducer, useState, useContext } from "react";
+import React, { useReducer, useState, useContext, useEffect } from "react";
 import { useRouter } from 'next/router';
 import { Button, Grid, TextField } from "@mui/material";
+import { signIn, getSession } from 'next-auth/client';
 
 import AuthContext from "../../store/auth-context";
 import useHttp from "../../hooks/http-hook";
@@ -28,31 +29,35 @@ const reducer = (state, action) => {
   }
 };
 
-const SignUp = () => {
+const Login = (props) => {
   const [inputState, dispatch] = useReducer(reducer, initialState);
-  const { isLoading, sendRequest, error, clearError } = useHttp();
   const [user, setUser] = useState();
+  const [error, setError] = useState();
+  
   const router = useRouter();
-  const { login } = useContext(AuthContext);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     const { email, password } = inputState;
     try {
-      const response = await sendRequest(
-        "http://146.148.93.110:5000/api/users/login",
-        "POST",
-        JSON.stringify({ email, password }),
-        {
-          "Content-Type": "application/json",
-        }
-      );
-      setUser(response.user);
-      login(response.user);
-      setTimeout(()=>{
-        router.push('/');
-      },3500);
-    } catch (error) {}
+      const response = await signIn("credentials", { redirect: false, email, password });
+        console.log(response);
+      if(response.error) {
+        throw new Error(response.error);
+      }
+
+      if(!response.error) {
+          console.log('Method to login. . . ');
+          setUser('Logging in user');
+          //login(response.user);
+          setTimeout(()=>{
+            router.push('/');
+          },3500);
+      }
+    } catch (error) {
+        console.log(error);
+        setError('Invalid email or password');
+    }
   };
 
   return (
@@ -91,10 +96,11 @@ const SignUp = () => {
             }
           />
           <br />
-          <Button variant="contained" type="submit" disabled={isLoading}>
+          <Button variant="contained" type="submit">
             Submit
           </Button>
         </form>
+        <div style={{margin: '1rem 0'}}></div>
         <Link href="/auth/sign-up">
           <a>Click here to sign up</a>
         </Link>
@@ -102,7 +108,7 @@ const SignUp = () => {
           message={error? error: ''}
           severity="error"
           open={!!error}
-          handleClose={clearError}
+          handleClose={()=>setError(null)}
           duration={5000}
         />
         <CustomSnackbar
@@ -118,4 +124,27 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export async function getServerSideProps({req}) {
+    const session = await getSession({req});
+    console.log(session);
+    if(session) {
+
+        return {
+            props: {
+                user: session
+            },
+            redirect: {
+                destination: '/',
+                permanent: false
+            }
+
+        }
+    }
+    return {
+        props: {
+            user: null
+        }
+    }
+}
+
+export default Login;

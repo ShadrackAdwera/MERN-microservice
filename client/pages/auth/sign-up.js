@@ -40,7 +40,7 @@ const SignUp = () => {
     const { email, password } = inputState;
     try {
       const response = await sendRequest(
-        "http://146.148.93.110:5000/api/users/sign-up",
+        "http://104.198.209.252:5000/api/users/sign-up",
         "POST",
         JSON.stringify({ email, password }),
         {
@@ -50,7 +50,7 @@ const SignUp = () => {
       setUser(response.user);
       login(response.user);
       setTimeout(()=>{
-        router.push('/');
+        router.push('/auth/login');
       },3500);
     } catch (error) {}
   };
@@ -95,6 +95,7 @@ const SignUp = () => {
             Submit
           </Button>
         </form>
+        <div style={{margin: '1rem 0'}}></div>
         <Link href="/auth/login">
           <a>Click here to login</a>
         </Link>
@@ -106,7 +107,7 @@ const SignUp = () => {
           duration={5000}
         />
         <CustomSnackbar
-          message="Sign up successful"
+          message="Sign up successful, login to continue"
           severity="success"
           open={!!user}
           handleClose={()=>setUser(null)}
