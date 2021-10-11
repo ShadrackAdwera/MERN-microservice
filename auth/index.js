@@ -3,7 +3,7 @@ const cookieSession = require('cookie-session');
 
 const userRoutes = require('./routes/users-routes');
 
-const HttpError = require('./models/httpError');
+const { HttpError } = require('@adwesh/common/src/index');
 
 const app = express();
 
