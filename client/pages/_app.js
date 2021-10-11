@@ -1,11 +1,11 @@
-import { AuthContextProvider } from '../store/auth-context'
+import { Provider } from 'next-auth/client';
 
 import '../styles/globals.css'
 
 function MyApp({ Component, pageProps }) {
-  return <AuthContextProvider>
+  return <Provider session={pageProps.session}>
     <Component {...pageProps} />
-  </AuthContextProvider>
+  </Provider>
 }
 
 export default MyApp

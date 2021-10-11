@@ -4,8 +4,6 @@ import { useRouter } from 'next/router';
 import { Button, Grid, TextField } from "@mui/material";
 import { signIn, getSession } from 'next-auth/client';
 
-import AuthContext from "../../store/auth-context";
-import useHttp from "../../hooks/http-hook";
 import AuthAppBar from "../../components/AuthAppBar";
 import CustomSnackbar from "../../components/Snackbar";
 
@@ -30,6 +28,7 @@ const reducer = (state, action) => {
 };
 
 const Login = (props) => {
+  const { session } = props;
   const [inputState, dispatch] = useReducer(reducer, initialState);
   const [user, setUser] = useState();
   const [error, setError] = useState();
@@ -63,7 +62,7 @@ const Login = (props) => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={12} md={12}>
-        <AuthAppBar />
+        <AuthAppBar session={session}/>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <div className={styles.heading}>
@@ -126,12 +125,11 @@ const Login = (props) => {
 
 export async function getServerSideProps({req}) {
     const session = await getSession({req});
-    console.log(session);
     if(session) {
 
         return {
             props: {
-                user: session
+                session
             },
             redirect: {
                 destination: '/',
@@ -142,7 +140,7 @@ export async function getServerSideProps({req}) {
     }
     return {
         props: {
-            user: null
+            session: null
         }
     }
 }

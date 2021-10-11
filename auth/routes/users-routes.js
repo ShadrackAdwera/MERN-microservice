@@ -3,7 +3,7 @@ const { body } = require('express-validator');
 
 const { getCurrentUser, signUp, signIn, signOut } = require('../controllers/users-controllers');
 
-const checkSession = require('../middlewares/checkSession');
+const checkSession = require('../middlewares/checkAuth');
 
 const router = express.Router()
 

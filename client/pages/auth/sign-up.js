@@ -1,9 +1,8 @@
 import Link from 'next/link'
-import React, { useReducer, useState, useContext } from "react";
+import React, { useReducer, useState } from "react";
 import { useRouter } from 'next/router';
 import { Button, Grid, TextField } from "@mui/material";
 
-import AuthContext from "../../store/auth-context";
 import useHttp from "../../hooks/http-hook";
 import AuthAppBar from "../../components/AuthAppBar";
 import CustomSnackbar from "../../components/Snackbar";
@@ -33,14 +32,13 @@ const SignUp = () => {
   const { isLoading, sendRequest, error, clearError } = useHttp();
   const [user, setUser] = useState();
   const router = useRouter();
-  const { login } = useContext(AuthContext);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     const { email, password } = inputState;
     try {
       const response = await sendRequest(
-        "http://104.198.209.252:5000/api/users/sign-up",
+        "http://104.155.158.22:5000/api/users/sign-up",
         "POST",
         JSON.stringify({ email, password }),
         {
@@ -48,7 +46,6 @@ const SignUp = () => {
         }
       );
       setUser(response.user);
-      login(response.user);
       setTimeout(()=>{
         router.push('/auth/login');
       },3500);
@@ -58,7 +55,7 @@ const SignUp = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={12} md={12}>
-        <AuthAppBar />
+        <AuthAppBar session={null}/>
       </Grid>
       <Grid item xs={12} sm={12} md={12}>
         <div className={styles.heading}>

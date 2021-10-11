@@ -20,7 +20,7 @@ const checkAuth = (req,res,next) => {
     } catch (error) {
         return next(new HttpError('Auth failed', 401));
     }
-    req.currentUser = { userId: decodedToken.id  }
+    req.user = { userId: decodedToken.id  }
     next();
 }
 

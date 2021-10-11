@@ -1,4 +1,6 @@
 import React from 'react';
+import { useRouter } from 'next/router';
+
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -7,7 +9,8 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 
-const AuthAppBar = () => {
+const AuthAppBar = ({session, signOut}) => {
+  const router = useRouter();
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -24,7 +27,9 @@ const AuthAppBar = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Ticketing K8S
           </Typography>
-          <Button color="inherit">Sign Up</Button>
+          {session && <Button color="inherit" onClick={()=>router.push('/')}>Home</Button>}
+          {session && <Button color="inherit" onClick={()=>router.push('/profile')}>Profile</Button>}
+          {session && <Button color="secondary" variant="contained" onClick={signOut}>Log Out</Button>}
         </Toolbar>
       </AppBar>
     </Box>
