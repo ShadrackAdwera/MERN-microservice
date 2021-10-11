@@ -1,3 +1,5 @@
+const { validationResult } = require('express-validator');
+
 const { HttpError } = require("@adwesh/common/src/index");
 const Ticket = require("../models/Ticket");
 
@@ -5,6 +7,10 @@ const populateQuery = [{ path: "user", select: ["email", "_id"] }];
 
 //CREATE
 const addTickets = async (req, res, next) => {
+ const error = validationResult(req);
+ if(!error.isEmpty()) {
+     return next(new HttpError('Invalid inputs', 422));
+ }
   const { userId } = req.user;
   const { title, price } = req.body;
   let createdTicket;
@@ -59,7 +65,7 @@ const findTicketById = async (req, res, next) => {
   const { ticketId } = req.params;
   let foundTicket;
   try {
-    foundTicket = await Ticket.findById(ticketId).exec();
+    foundTicket = await Ticket.findById(ticketId).populate(populateQuery).exec();
   } catch (error) {
     return next(new HttpError("Unable to fetch ticket", 500));
   }
@@ -106,4 +112,11 @@ const updateTicket = async (req, res, next) => {
       ticket: foundTicket.toObject({ getters: true }),
     });
 };
+
+exports.addTickets = addTickets;
+exports.getTickets = getTickets;
+exports.getUserTickets = getUserTickets;
+exports.findTicketById = findTicketById;
+exports.updateTicket = updateTicket;
+
 
