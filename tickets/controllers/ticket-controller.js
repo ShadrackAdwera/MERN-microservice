@@ -5,6 +5,24 @@ const populateQuery = [
     { path: 'user', select: ['email','_id'] }
 ]
 
+//CREATE
+const addTickets = async(req,res,next) => {
+    const { userId } = req.user;
+    const { title, price } = req.body
+    let createdTicket;
+    let foundUser;
+
+    //check if user exists*
+
+    try {
+        createdTicket = new Ticket({title, price, user: userId});
+    } catch (error) {
+        return next(new HttpError('Unable to add ticket', 500));
+    }
+    res.status(201).json({message: 'Ticket added', ticket: createdTicket});
+}
+
+//READ
 const getTickets = async(req,res,next) => {
     let tickets;
     try {
