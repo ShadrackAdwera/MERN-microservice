@@ -3,7 +3,7 @@ const { validationResult } = require('express-validator');
 const { HttpError } = require("@adwesh/common/src/index");
 const Ticket = require("../models/Ticket");
 
-const populateQuery = [{ path: "user", select: ["email", "_id"] }];
+//const populateQuery = [{ path: "user", select: ["email", "_id"] }];
 
 //CREATE
 const addTickets = async (req, res, next) => {
@@ -31,8 +31,9 @@ const addTickets = async (req, res, next) => {
 const getTickets = async (req, res, next) => {
   let tickets;
   try {
-    tickets = await Ticket.find().populate(populateQuery).exec();
+    tickets = await Ticket.find().exec();
   } catch (error) {
+    console.log(error);
     return next(new HttpError("Unable to fetch tickets", 500));
   }
   res
@@ -47,7 +48,6 @@ const getUserTickets = async (req, res, next) => {
   let foundTickets;
   try {
     foundTickets = await Ticket.find({ user: userId })
-      .populate(populateQuery)
       .exec();
   } catch (error) {
     return next(new HttpError("Unable to fetch tickets", 500));
@@ -65,20 +65,20 @@ const findTicketById = async (req, res, next) => {
   const { ticketId } = req.params;
   let foundTicket;
   try {
-    foundTicket = await Ticket.findById(ticketId).populate(populateQuery).exec();
+    foundTicket = await Ticket.findById(ticketId).exec();
   } catch (error) {
     return next(new HttpError("Unable to fetch ticket", 500));
   }
   if (!foundTicket) {
     return next(new HttpError("This ticket does not exist", 404));
   }
-  res.status(200).json({ticket: foundTicket})
+  res.status(200).json({ticket: foundTicket.toObject({getters: true})})
 };
 
 //UPDATE
 const updateTicket = async (req, res, next) => {
   const { userId } = req.user;
-  const { title } = req.body;
+  const { title, price } = req.body;
   const { ticketId } = req.params;
   let foundTicket;
 
@@ -92,12 +92,13 @@ const updateTicket = async (req, res, next) => {
   if (!foundTicket) {
     return next(new HttpError("This ticket does not exist", 404));
   }
-  if (foundTicket._id.toString() !== userId.toString()) {
+  if (foundTicket.user.toString() !== userId.toString()) {
     return next(
       new HttpError("You are not authorized to perform this action", 403)
     );
   }
   foundTicket.title = title;
+  foundTicket.price = price;
   try {
     await foundTicket.save();
   } catch (error) {

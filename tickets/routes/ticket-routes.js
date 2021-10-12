@@ -9,8 +9,8 @@ router.get('/', getTickets);
 router.get('/:ticketId', findTicketById);
 router.use(checkAuth);
 router.get('/user/:userId', getUserTickets);
-router.post('/new', [ body('title').trim().isLength({min: 3}), body('price').trim().not().isEmpty() ], addTickets);
-router.patch('/:ticketId', [ body('title').trim().isLength({min: 3}) ], updateTicket);
+router.post('/new', [ body('title').trim().isLength({min: 3}), body('price').isNumeric() ], addTickets);
+router.patch('/:ticketId', [ body('title').trim().isLength({min: 3}), body('price').isNumeric() ], updateTicket);
 
 module.exports = router;
 
