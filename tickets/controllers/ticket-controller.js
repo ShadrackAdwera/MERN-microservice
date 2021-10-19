@@ -121,6 +121,28 @@ const updateTicket = async (req, res, next) => {
   foundTicket.price = price;
   try {
     await foundTicket.save();
+    //publish event
+    const stan = nats.connect("ticketing", crypto.randomUUID().toString(), {
+      url: "http://nats-service:4222",
+    });
+    stan.on("connect", async () => {
+      stan.on("close", () => {
+        console.log("NATS connection closed");
+        process.exit();
+      });
+      //interrupt signal
+      process.on("SIGINT", () => stan.close());
+      //terminate signal
+      process.on("SIGTERM", () => stan.close());
+      console.log("Connected to NATS");
+      const publisher = new Publisher("ticket:updated", stan);
+      await publisher.publish({
+        id: foundTicket._id.toString(),
+        title: foundTicket.title,
+        price: foundTicket.price,
+        userId: foundTicket.user,
+      });
+    });
   } catch (error) {
     return next(
       new HttpError("An error occured while updating the ticket", 500)
