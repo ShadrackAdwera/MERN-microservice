@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 
 const { HttpError } = require("@adwesh/common/src/index");
+const Publisher = require('@adwesh/common/src/events/base-publisher');
 const Ticket = require("../models/Ticket");
 
 //const populateQuery = [{ path: "user", select: ["email", "_id"] }];
@@ -21,6 +22,14 @@ const addTickets = async (req, res, next) => {
   try {
     createdTicket = new Ticket({ title, price, user: userId });
     await createdTicket.save();
+    //publish event
+    const publisher = new Publisher('ticket:created', client);
+    await publisher.publish({
+      id: createdTicket._id.toString(),
+      title: createdTicket.title, 
+      price: createdTicket.price, 
+      userId: createdTicket.user
+    })
   } catch (error) {
     return next(new HttpError("Unable to add ticket", 500));
   }

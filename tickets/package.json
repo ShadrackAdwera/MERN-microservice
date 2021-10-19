@@ -9,7 +9,7 @@
   "author": "adwera",
   "license": "ISC",
   "dependencies": {
-    "@adwesh/common": "^1.0.4",
+    "@adwesh/common": "^1.0.5",
     "express": "^4.17.1",
     "express-validator": "^6.12.2",
     "mongoose": "^6.0.10",
