@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-service
+spec:
+  selector:
+    app: orders
+  type: LoadBalancer
+  ports:
+  - name: orders
+    protocol: TCP
+    port: 5002
+    targetPort: 5002
