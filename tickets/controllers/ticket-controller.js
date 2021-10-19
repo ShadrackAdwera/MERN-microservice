@@ -24,8 +24,8 @@ const addTickets = async (req, res, next) => {
     createdTicket = new Ticket({ title, price, user: userId });
     await createdTicket.save();
     //publish event
-    const stan = nats.connect("ticketing", crypto.randomUUID().toString(), {
-      url: "http://nats-service:4222",
+    const stan = nats.connect(process.env.NATS_CLUSTER_ID, process.env.NATS_CLIENT_ID, {
+      url: process.env.NATS_URL,
     });
     stan.on("connect", async () => {
       stan.on("close", () => {
@@ -122,8 +122,8 @@ const updateTicket = async (req, res, next) => {
   try {
     await foundTicket.save();
     //publish event
-    const stan = nats.connect("ticketing", crypto.randomUUID().toString(), {
-      url: "http://nats-service:4222",
+    const stan = nats.connect(process.env.NATS_CLUSTER_ID, process.env.NATS_CLIENT_ID, {
+      url: process.env.NATS_URL,
     });
     stan.on("connect", async () => {
       stan.on("close", () => {
