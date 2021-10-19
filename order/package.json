@@ -1,0 +1,30 @@
+{
+  "name": "order",
+  "version": "1.0.0",
+  "description": "orders microservice",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShadrackAdwera/MERN-microservice.git"
+  },
+  "keywords": [
+    "k8s"
+  ],
+  "author": "adwera",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ShadrackAdwera/MERN-microservice/issues"
+  },
+  "homepage": "https://github.com/ShadrackAdwera/MERN-microservice#readme",
+  "dependencies": {
+    "@adwesh/common": "^1.0.5",
+    "express": "^4.17.1",
+    "express-validator": "^6.13.0",
+    "mongoose": "^6.0.11",
+    "node-nats-streaming": "^0.3.2",
+    "nodemon": "^2.0.13"
+  }
+}
