@@ -1,6 +1,5 @@
 const { validationResult } = require("express-validator");
 const nats = require("node-nats-streaming");
-const crypto = require("crypto");
 
 const { HttpError } = require("@adwesh/common/src/index");
 const Publisher = require("@adwesh/common/src/events/base-publisher");
