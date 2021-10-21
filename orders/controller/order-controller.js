@@ -11,13 +11,14 @@ Date.prototype.addHours = function(h){
     return this;
 }
 
+const populateQuery = [{ path: "ticket", select: ["title", "price"] }];
+
 const createOrder = async(req,res,next) => {
     const error = validationResult(req);
     if(!error.isEmpty()) {
         return next(new HttpError('Invalid inputs', 422));
     }
     let foundTicket;
-    //const populateQuery = [{ path: "user", select: ["email", "_id"] }];
     const { userId } = req.user;
     //check if user exists
     const { ticketId } = req.body;
@@ -32,7 +33,7 @@ const createOrder = async(req,res,next) => {
     }
 
     const createdOrder = new Order({
-        userId, status: 'pending', expiresAt: new Date().addHours(1), ticketId
+        userId, status: 'pending', expiresAt: new Date().addHours(1), ticket: ticketId
     })
 
     try {
@@ -58,7 +59,7 @@ const getOrderById = async(req,res,next) => {
     let foundOrder;
     const { id } = req.params;
     try {
-        foundOrder = await Order.findById(id);
+        foundOrder = await Order.findById(id).populate(populateQuery);
     } catch (error) {
         return next(new HttpError('Internal server error',500));
     }
@@ -73,7 +74,7 @@ const getUserOrders = async(req,res,next) => {
     let foundOrders;
 
     try {
-        foundOrders = await Order.find({userId}).exec();
+        foundOrders = await Order.find({userId}).populate(populateQuery).exec();
     } catch (error) {
         return next(new HttpError('Failed to fetch orders', 500));
     }
