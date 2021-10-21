@@ -41,3 +41,15 @@ const getOrderById = async(req,res,next) => {
     res.status(200).json({order: foundOrder.toObject({getters: true})});
 }
 
+const getUserOrders = async(req,res,next) => {
+    const { userId } = req.body;
+    let foundOrders;
+
+    try {
+        foundOrders = await Order.find({userId}).exec();
+    } catch (error) {
+        return next(new HttpError('Failed to fetch orders', 500));
+    }
+    res.status(200).json({orders: foundOrders.map(ord=>ord.toObject({getters: true}))})
+
+}
