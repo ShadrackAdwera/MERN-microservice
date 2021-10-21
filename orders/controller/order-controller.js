@@ -17,15 +17,15 @@ const createOrder = async(req,res,next) => {
 }
 
 //get orders
-const getOrders = async(req,res,next) => {
-    let foundOrders;
-    try {
-        foundOrders = await Order.find().exec();
-    } catch (error) {
-        return next(new HttpError('Failed to fetch orders', 500));
-    }
-    res.status(200).json({orders: foundOrders.map(ord=>ord.toObject({getters: true}))})
-}
+// const getOrders = async(req,res,next) => {
+//     let foundOrders;
+//     try {
+//         foundOrders = await Order.find().exec();
+//     } catch (error) {
+//         return next(new HttpError('Failed to fetch orders', 500));
+//     }
+//     res.status(200).json({orders: foundOrders.map(ord=>ord.toObject({getters: true}))})
+// }
 
 const getOrderById = async(req,res,next) => {
     let foundOrder;
@@ -42,7 +42,7 @@ const getOrderById = async(req,res,next) => {
 }
 
 const getUserOrders = async(req,res,next) => {
-    const { userId } = req.body;
+    const { userId } = req.user;
     let foundOrders;
 
     try {
@@ -53,3 +53,29 @@ const getUserOrders = async(req,res,next) => {
     res.status(200).json({orders: foundOrders.map(ord=>ord.toObject({getters: true}))})
 
 }
+const deleteOrders = async(req,res,next) => {
+    const { id } = req.params
+    let foundOrder;
+
+    try {
+        foundOrder = await Order.findById(id).exec();
+    } catch (error) {
+        return next(new HttpError('Unable to fetch order',500));
+    }
+    if(!foundOrder) {
+        return next(new HttpError('This order does not exist', 404));
+    }
+
+    try {
+        await Order.findByIdAndDelete(id).exec();
+    } catch (error) {
+        return next(new HttpError('An error occured while deleting the order, try again', 500));
+    }
+    res.status(200).json({message: 'This order was deleted successfully'})
+}
+
+//exports.getOrders = getOrders;
+exports.getOrderById = getOrderById;
+exports.getUserOrders = getUserOrders;
+exports.createOrder = createOrder;
+exports.deleteOrders = deleteOrders;
