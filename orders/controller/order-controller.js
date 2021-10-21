@@ -6,11 +6,7 @@ const Publisher = require("@adwesh/common/src/events/base-publisher");
 const Order = require("../model/order-model");
 const Ticket = require("../model/ticket-model");
 
-Date.prototype.addHours = function (h) {
-  this.setHours(this.getHours() + h);
-  return this;
-};
-
+const EXPIRATION_SECONDS = 15*60;
 const populateQuery = [{ path: "ticket", select: ["title", "price"] }];
 
 /*Order Statuses
@@ -55,10 +51,17 @@ const createOrder = async (req, res, next) => {
       return next(new HttpError('This ticket has already been reserved', 422))
   }
 
+  //calculate expiration seconds
+//   Date.prototype.addSeconds = function (s) {
+//     this.setSeconds(this.getSeconds() + s);
+//     return this;
+//   };
+const expiration = new Date();
+
   const createdOrder = new Order({
     userId,
     status: "pending",
-    expiresAt: new Date().addHours(1),
+    expiresAt: expiration.setSeconds(expiration.getSeconds() + EXPIRATION_SECONDS),
     ticket: ticketId,
   });
 
