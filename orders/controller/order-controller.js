@@ -4,16 +4,43 @@ const HttpError = require('@adwesh/common/src/error/httpError');
 const Publisher = require("@adwesh/common/src/events/base-publisher");
 
 const Order = require('../model/order-model');
+const Ticket = require('../model/ticket-model');
+
+Date.prototype.addHours = function(h){
+    this.setHours(this.getHours()+h);
+    return this;
+}
 
 const createOrder = async(req,res,next) => {
     const error = validationResult(req);
     if(!error.isEmpty()) {
         return next(new HttpError('Invalid inputs', 422));
     }
+    let foundTicket;
+    //const populateQuery = [{ path: "user", select: ["email", "_id"] }];
     const { userId } = req.user;
     //check if user exists
     const { ticketId } = req.body;
     //check if ticket exists
+    try {
+        foundTicket = await Ticket.findById(ticketId).populate().exec();
+    } catch (error) {
+        return next(new HttpError('An error occured, try again', 500));
+    }
+    if(!foundTicket) {
+        return next(new HttpError('This ticket does not exist', 404));
+    }
+
+    const createdOrder = new Order({
+        userId, status: 'pending', expiresAt: new Date().addHours(1), ticketId
+    })
+
+    try {
+        await createdOrder.save();
+    } catch (error) {
+        return next(new HttpError('Unable to save order', 500));
+    }
+    res.status(201).json({message: 'Your order was reserved!', order: createdOrder})
 }
 
 //get orders
