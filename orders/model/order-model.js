@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 /*Order Statuses
@@ -14,10 +14,15 @@ complete - order has reserved the ticket and user has paid the amount successful
 */
 
 const orderSchema = new Schema({
-    userId: { type: String, required: true },
-    status: { type: String, required: true, enum: ['created', 'cancelled','awaiting:payment','complete'] },
-    expiresAt: { type: Schema.Types.Date },
-    ticket: { type: Schema.Types.ObjectId, required: true, ref: 'Ticket' }
+  userId: { type: String, required: true },
+  status: {
+    type: String,
+    required: true,
+    enum: ["created", "cancelled", "awaiting:payment", "complete"],
+    default: "created",
+  },
+  expiresAt: { type: Schema.Types.Date },
+  ticket: { type: Schema.Types.ObjectId, required: true, ref: "Ticket" },
 });
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model("Order", orderSchema);
