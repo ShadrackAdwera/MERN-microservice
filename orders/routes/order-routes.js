@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const { body } = require('express-validator');
 const checkAuth = require('@adwesh/common/src/middlewares/checkAuth');
 
@@ -10,7 +11,10 @@ router.use(checkAuth);
 router.get('/',getUserOrders);
 router.get('/:id', getOrderById);
 router.post('/', [
-    body('ticketId').not().isEmpty()
+    body('ticketId')
+    .not()
+    .isEmpty()
+    .custom((input)=> mongoose.Types.ObjectId.isValid(input))
 ], createOrder);
 router.delete('/:id', deleteOrders);
 
