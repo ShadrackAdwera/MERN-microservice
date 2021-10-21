@@ -13,6 +13,18 @@ Date.prototype.addHours = function(h){
 
 const populateQuery = [{ path: "ticket", select: ["title", "price"] }];
 
+/*Order Statuses
+created - order has been created but the ticket has not been reserved.
+
+cancelled - ticket from which the order was created has already been reserved by another order, 
+or order expires before payment,
+or order has been cancelled.
+
+awaiting:payment - order successfully reserved the ticket.
+
+complete - order has reserved the ticket and user has paid the amount successfully.
+*/
+
 const createOrder = async(req,res,next) => {
     const error = validationResult(req);
     if(!error.isEmpty()) {
