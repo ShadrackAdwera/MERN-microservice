@@ -86,7 +86,7 @@ const expiration = new Date();
         id: createdOrder._id.toString(),
         userId: createdOrder.userId,
         status: createdOrder.status,
-        expiresAt: createdOrder.expiresAt,
+        expiresAt: createdOrder.expiresAt.toISOString(),
         ticket: {
           id: foundTicket._id.toString(),
           title: foundTicket.title,
