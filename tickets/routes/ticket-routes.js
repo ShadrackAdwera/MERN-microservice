@@ -3,7 +3,7 @@ const { body } = require('express-validator');
 const { checkAuth } = require('@adwesh/common/src/index');
 
 const { addTickets, getTickets, getUserTickets, findTicketById, updateTicket } = require('../controllers/ticket-controller');
-const router = express.Router();
+const router = express.Router(); 
 
 router.get('/', getTickets);
 router.get('/:ticketId', findTicketById);

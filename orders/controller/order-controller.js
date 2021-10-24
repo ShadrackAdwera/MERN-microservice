@@ -67,11 +67,34 @@ const expiration = new Date();
 
   try {
     await createdOrder.save();
+    //TODO: Publish an event for an order being created
+    const stan = nats.connect(process.env.NATS_CLUSTER_ID, process.env.NATS_CLIENT_ID, {
+    url: process.env.NATS_URL
+    })
+    stan.on("connect", async () => {
+      stan.on("close", () => {
+        console.log("NATS connection closed");
+        process.exit();
+      });
+      //interrupt signal
+      process.on("SIGINT", () => stan.close());
+      //terminate signal
+      process.on("SIGTERM", () => stan.close());
+      console.log("Connected to NATS Orders");
+      const publisher = new Publisher("order:created", stan);
+      await publisher.publish({
+        id: createdOrder._id.toString(),
+        userId: createdOrder.userId,
+        status: createdOrder.status,
+        expiresAt: createdOrder.expiresAt,
+        ticket: createdOrder.ticket,
+      });
+    });
   } catch (error) {
+    console.log(error);
     return next(new HttpError("Unable to save order", 500));
   }
 
-  //TODO: Publish an event for an event being created
 
   res
     .status(201)
@@ -92,6 +115,7 @@ const expiration = new Date();
 const getOrderById = async (req, res, next) => {
   let foundOrder;
   const { id } = req.params;
+  const { userId } = req.user;
   try {
     foundOrder = await Order.findById(id).populate(populateQuery);
   } catch (error) {
@@ -99,6 +123,9 @@ const getOrderById = async (req, res, next) => {
   }
   if (!foundOrder) {
     return next(new HttpError("This order does not exists", 404));
+  }
+  if(foundOrder.userId !== userId) {
+    return next(new HttpError('You are not authorized to view this ticket', 403));
   }
   res.status(200).json({ order: foundOrder.toObject({ getters: true }) });
 };

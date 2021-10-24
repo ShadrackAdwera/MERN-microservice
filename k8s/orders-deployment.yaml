@@ -31,7 +31,3 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
