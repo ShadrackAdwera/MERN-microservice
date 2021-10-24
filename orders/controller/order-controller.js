@@ -7,7 +7,7 @@ const Order = require("../model/order-model");
 const Ticket = require("../model/ticket-model");
 
 const EXPIRATION_SECONDS = 15*60;
-const populateQuery = [{ path: "ticket", select: ["title", "price"] }];
+const populateQuery = [{ path: "ticket", select: ["_id","title", "price"] }];
 
 /*Order Statuses
 created - order has been created but the ticket has not been reserved.
@@ -33,7 +33,7 @@ const createOrder = async (req, res, next) => {
   const { ticketId } = req.body;
   //check if ticket exists
   try {
-    foundTicket = await Ticket.findById(ticketId).populate().exec();
+    foundTicket = await Ticket.findById(ticketId).exec();
   } catch (error) {
     return next(new HttpError("An error occured, try again", 500));
   }
@@ -87,7 +87,11 @@ const expiration = new Date();
         userId: createdOrder.userId,
         status: createdOrder.status,
         expiresAt: createdOrder.expiresAt,
-        ticket: createdOrder.ticket,
+        ticket: {
+          id: foundTicket._id.toString(),
+          title: foundTicket.title,
+          price: foundTicket.price
+        },
       });
     });
   } catch (error) {
@@ -150,7 +154,7 @@ const deleteOrders = async (req, res, next) => {
   let foundOrder;
 
   try {
-    foundOrder = await Order.findById(id).exec();
+    foundOrder = await Order.findById(id).populate(populateQuery).exec();
   } catch (error) {
     return next(new HttpError("Unable to fetch order", 500));
   }
@@ -159,6 +163,30 @@ const deleteOrders = async (req, res, next) => {
   }
 
   try {
+    //emit a event
+    const stan = nats.connect(process.env.NATS_CLUSTER_ID, process.env.NATS_CLIENT_ID, {
+      url: process.env.NATS_URL
+      })
+      stan.on("connect", async () => {
+        stan.on("close", () => {
+          console.log("NATS connection closed");
+          process.exit();
+        });
+        //interrupt signal
+        process.on("SIGINT", () => stan.close());
+        //terminate signal
+        process.on("SIGTERM", () => stan.close());
+        console.log("Connected to NATS Cancel Orders");
+        const publisher = new Publisher("order:cancelled", stan);
+        await publisher.publish({
+          id: foundOrder._id.toString(),
+          ticket: {
+            id: foundOrder.ticket._id.toString(),
+            title: foundOrder.ticket.title,
+            price: foundOrder.ticket.price
+          },
+        });
+      });
     await Order.findByIdAndDelete(id).exec();
   } catch (error) {
     return next(
